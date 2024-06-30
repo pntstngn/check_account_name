@@ -62,7 +62,7 @@ vietabank = VietaBank(
     parse_proxy_list(config['VietaBank']['proxy_list'])
 )
 
-banks = [acb, mbbank]
+banks = [acb, mbbank,tcb,vtb,seabank,vietabank]
 
 def check_bank(bank, account_number, bank_name, account_name):
     try:
@@ -82,37 +82,15 @@ class BankInfo(BaseModel):
 
 @app.post('/check_bank_name', tags=["check_bank_name"])
 def check_bank_name(input: BankInfo):
-    account_number = input.account_number
-    bank_name = input.bank_name
-    account_name = input.account_name
+    try:
+        account_number = input.account_number
+        bank_name = input.bank_name
+        account_name = input.account_name
 
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        selected_banks = random.sample(banks, 2)
-        futures = [executor.submit(check_bank, bank, account_number, bank_name, account_name) for bank in selected_banks]
-        start_time = time.time()
-
-        try:
-            for future in as_completed(futures, timeout=5):
-                try:
-                    result = future.result()
-                    if result == True:
-                        return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                    elif result == False:
-                        return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                    else:
-                        return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                except Exception as e:
-                    response = str(e)
-                    print(traceback.format_exc())
-                    print(sys.exc_info()[2])
-                    return APIResponse.json_format(response)
-        except TimeoutError:
-            return APIResponse.json_format({'message': 'timeout'})
-
-        if time.time() - start_time >= 5:
-            # Retry with another set of banks
-            remaining_banks = [bank for bank in banks if bank not in selected_banks]
-            futures = [executor.submit(check_bank, bank, account_number, bank_name, account_name) for bank in remaining_banks]
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            selected_banks = random.sample(banks, 2)
+            futures = [executor.submit(check_bank, bank, account_number, bank_name, account_name) for bank in selected_banks]
+            start_time = time.time()
 
             try:
                 for future in as_completed(futures, timeout=5):
@@ -123,16 +101,44 @@ def check_bank_name(input: BankInfo):
                         elif result == False:
                             return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                         else:
-                            return APIResponse.json_format({'result': False, 'true_name': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                            return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                     except Exception as e:
                         response = str(e)
                         print(traceback.format_exc())
                         print(sys.exc_info()[2])
                         return APIResponse.json_format(response)
             except TimeoutError:
-                return APIResponse.json_format({'result': False ,'message': 'timeout'})
+                return APIResponse.json_format({'message': 'timeout'})
 
-        return APIResponse.json_format({'result': False})
+            if time.time() - start_time >= 5:
+                # Retry with another set of banks
+                remaining_banks = [bank for bank in banks if bank not in selected_banks]
+                futures = [executor.submit(check_bank, bank, account_number, bank_name, account_name) for bank in remaining_banks]
+
+                try:
+                    for future in as_completed(futures, timeout=5):
+                        try:
+                            result = future.result()
+                            if result == True:
+                                return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                            elif result == False:
+                                return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                            else:
+                                return APIResponse.json_format({'result': False, 'true_name': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                        except Exception as e:
+                            response = str(e)
+                            print(traceback.format_exc())
+                            print(sys.exc_info()[2])
+                            return APIResponse.json_format(response)
+                except TimeoutError:
+                    return APIResponse.json_format({'result': False ,'message': 'timeout'})
+
+            return APIResponse.json_format({'result': False})
+    except Exception as e:
+        response = str(e)
+        print(traceback.format_exc())
+        print(sys.exc_info()[2])
+        return APIResponse.json_format(response)
 
 if __name__ == "__main__":
     uvicorn.run(app, host='0.0.0.0', port=3000)

@@ -113,13 +113,11 @@ class ACB:
             return False
 
     def curl_post(self, url, data=None):
-        try:
-            headers = self.header_null()
-            response = requests.post(url, headers=headers, json=data, timeout=60,proxies=self.proxies)
-            result = response.json()
-            return result
-        except Exception as e:
-            return e
+        headers = self.header_null()
+        response = requests.post(url, headers=headers, json=data, timeout=60,proxies=self.proxies)
+        result = response.json()
+        return result
+
     def header_null(self):
             header = {
                 'Accept': 'application/json',
