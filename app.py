@@ -100,7 +100,7 @@ def check_bank_name(input: BankInfo):
                     elif result == False:
                         return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                     else:
-                        return APIResponse.json_format({'result': False, 'true_name': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                        return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                 except Exception as e:
                     response = str(e)
                     print(traceback.format_exc())
