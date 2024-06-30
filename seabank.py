@@ -9,13 +9,15 @@ import random
 class SeaBank:
     def __init__(self, username, password, account_number,proxy_list=None):
         self.proxy_list = proxy_list
-        self.proxies = None
-        if(self.proxy_list):
-            self.proxy = random.choice(self.proxy_list)
+        if self.proxy_list:
+            self.proxy_info = self.proxy_list.pop(0)
+            proxy_host, proxy_port, username_proxy, password_proxy = self.proxy_info.split(':')
             self.proxies = {
-            'http': f'http://{self.proxy}',
-            'https': f'https://{self.proxy}'
+                'http': f'socks5://{username_proxy}:{password_proxy}@{proxy_host}:{proxy_port}',
+                'https': f'socks5://{username_proxy}:{password_proxy}@{proxy_host}:{proxy_port}'
             }
+        else:
+            self.proxies = None
         self.file = f"data/{username}.txt"
         self.password = password
         self.username = username
