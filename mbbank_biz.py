@@ -262,8 +262,11 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
             headers['Authorization'] = 'Bearer ' + self.sessionId
 
         response = self.session.post(url, headers=headers, data=json.dumps(data),proxies=self.proxies)
+        try:
+            result = response.json()
+        except ValueError:
+            result = response.text
 
-        result = response.json()
         return result
 
     def checkBrowser(self, type=1):
@@ -671,10 +674,20 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
             if not login['success']:
                 return login
         if bank_name == 'MBBank':
-            return self.check_bank_name_in(ben_account_number)
+            result =  self.check_bank_name_in(ben_account_number)
         else:
             bank_code = self.mapping_bank_code(bank_name)
-            return self.check_bank_name_out(bank_code,ben_account_number)
+            result =  self.check_bank_name_out(bank_code,ben_account_number)
+        if 'Credentials are required to access this resource' in result:
+            login = self.do_login()
+            if not login['success']:
+                return login
+        if bank_name == 'MBBank':
+            result =  self.check_bank_name_in(ben_account_number)
+        else:
+            bank_code = self.mapping_bank_code(bank_name)
+            result =  self.check_bank_name_out(bank_code,ben_account_number)
+        return result
     def convert_to_uppercase_no_accents(self,text):
         # Remove accents
         no_accents = unidecode.unidecode(text)
@@ -682,6 +695,7 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
         return no_accents.upper()
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
         get_name_from_account = self.get_bank_name(ben_account_number, bank_name)
+        print(get_name_from_account)
         if 'result' in get_name_from_account and 'responseCode' in get_name_from_account['result'] and get_name_from_account['result']['responseCode'] == "00" and ('customerName' in get_name_from_account) and get_name_from_account['customerName']:
             input_name = self.convert_to_uppercase_no_accents(ben_account_name).lower().strip()
             output_name = get_name_from_account['customerName'].lower().strip()

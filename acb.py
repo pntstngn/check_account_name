@@ -47,13 +47,14 @@ class ACB:
         count = 0
         while True:
             bankName = self.curl_get(url)
-            if 'Unauthorized' not in bankName:
+            if 'message' not in bankName and bankName['message'] != 'Unauthorized':
                 data = bankName
                 status = True
                 message = 'Successfully'
                 break
             else:
                 login = self.login()
+                print(login)
 
             count += 1
             if count > 5:
@@ -101,7 +102,7 @@ class ACB:
             self.time_login = time.time()
             return {'success': 1, 'msg': 'Đăng nhập thành công'}
         else:
-            return {'success': 0, 'msg': res['message']} 
+            return {'success': 0, 'msg': res['message'],'data': res} 
 
     def curl_get(self, url):
         try:

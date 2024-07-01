@@ -62,7 +62,7 @@ vietabank = VietaBank(
     parse_proxy_list(config['VietaBank']['proxy_list'])
 )
 
-banks = [acb, mbbank,tcb,vtb,seabank,vietabank]
+banks = [mbbank,tcb,vtb,seabank,vietabank]
 
 def check_bank(bank, account_number, bank_name, account_name):
     try:
@@ -100,8 +100,10 @@ def check_bank_name(input: BankInfo):
                             return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                         elif result == False:
                             return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                        else:
+                        elif isinstance(result, str):
                             return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                        else:
+                            return APIResponse.json_format({'result': False, 'data': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                     except Exception as e:
                         response = str(e)
                         print(traceback.format_exc())
