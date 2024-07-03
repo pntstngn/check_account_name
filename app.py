@@ -62,7 +62,7 @@ vietabank = VietaBank(
     parse_proxy_list(config['VietaBank']['proxy_list'])
 )
 
-banks = [mbbank,tcb,vtb,seabank,vietabank]
+banks = [acb,mbbank,tcb,vietabank,seabank,vtb]
 
 def check_bank(bank, account_number, bank_name, account_name):
     try:
@@ -93,16 +93,14 @@ def check_bank_name(input: BankInfo):
             start_time = time.time()
 
             try:
-                for future in as_completed(futures, timeout=5):
+                for future in as_completed(futures, timeout=6):
                     try:
                         result = future.result()
                         if result == True:
                             return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                        elif result == False:
-                            return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                         elif isinstance(result, str):
                             return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                        else:
+                        elif result != False:
                             return APIResponse.json_format({'result': False, 'data': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                     except Exception as e:
                         response = str(e)
@@ -110,15 +108,15 @@ def check_bank_name(input: BankInfo):
                         print(sys.exc_info()[2])
                         return APIResponse.json_format(response)
             except TimeoutError:
-                return APIResponse.json_format({'message': 'timeout'})
+            #     return APIResponse.json_format({'message': 'timeout'})
 
-            if time.time() - start_time >= 5:
+            # if time.time() - start_time >= 6:
                 # Retry with another set of banks
                 remaining_banks = [bank for bank in banks if bank not in selected_banks]
                 futures = [executor.submit(check_bank, bank, account_number, bank_name, account_name) for bank in remaining_banks]
 
                 try:
-                    for future in as_completed(futures, timeout=5):
+                    for future in as_completed(futures, timeout=6):
                         try:
                             result = future.result()
                             if result == True:

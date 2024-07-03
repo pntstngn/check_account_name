@@ -155,7 +155,11 @@ class VietaBank:
             }
 
         else:
-            check_error_message = html.unescape(self.check_error_message(response.text))
+            error_message = self.check_error_message(response.text)
+            if error_message is not None:
+                check_error_message = html.unescape(error_message)
+            else:
+                check_error_message = None
             if check_error_message:
                 if 'Tên đăng nhập hoặc mật khẩu không hợp lệ' in check_error_message:
                     return {'code':444,'success': False, 'message': (check_error_message)} 
@@ -187,7 +191,7 @@ class VietaBank:
                             }
         return None
     def get_bank_name(self, ben_account_number, bank_name):
-        if not self.is_login or time.time() - self.time_login > 300:
+        if not self.is_login or time.time() - self.time_login > 1800:
             login = self.login()
             if not login['success']:
                 return login
@@ -279,7 +283,8 @@ class VietaBank:
         return no_accents.upper()
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
         get_name_from_account = self.get_bank_name(ben_account_number, bank_name)
-        if get_name_from_account:
+        print(get_name_from_account)
+        if isinstance(get_name_from_account, str):
             input_name = self.convert_to_uppercase_no_accents(ben_account_name).lower().strip()
             output_name = get_name_from_account.lower().strip()
             if output_name == input_name or output_name.replace(' ','') == input_name:

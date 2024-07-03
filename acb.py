@@ -9,7 +9,7 @@ class ACB:
         self.connect = None  # You can initialize your database connection here
         self.clientId = 'iuSuHYVufIUuNIREV0FB9EoLn9kHsDbm'
         self.URL = {
-            "LOGIN": "https://apiapp.acb.com.vn/mb/auth/tokens",
+            "LOGIN": "https://apiapp.acb.com.vn/mb/v2/auth/tokens",
         }
         self.time_login = time.time()
         self.token = ""
@@ -47,7 +47,8 @@ class ACB:
         count = 0
         while True:
             bankName = self.curl_get(url)
-            if 'message' not in bankName and bankName['message'] != 'Unauthorized':
+            print(bankName)
+            if 'message' not in bankName or ('message' in bankName and  bankName['message'] != 'Unauthorized'):
                 data = bankName
                 status = True
                 message = 'Successfully'
@@ -57,7 +58,7 @@ class ACB:
                 print(login)
 
             count += 1
-            if count > 5:
+            if count > 3:
                 message = 'Connect false'
                 break
 
@@ -69,6 +70,7 @@ class ACB:
         return no_accents.upper()
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
         get_name_from_account = self.get_bank_name(ben_account_number, bank_name)
+        print(get_name_from_account)
         if 'data' in get_name_from_account and 'data' in get_name_from_account['data']:
             if get_name_from_account['data']['data'] and 'ownerName' in get_name_from_account['data']['data']:
                 input_name = self.convert_to_uppercase_no_accents(ben_account_name).lower().strip()
@@ -102,7 +104,7 @@ class ACB:
             self.time_login = time.time()
             return {'success': 1, 'msg': 'Đăng nhập thành công'}
         else:
-            return {'success': 0, 'msg': res['message'],'data': res} 
+            return {'success': 0, 'msg': res['error'] if 'error' in res else None,'data': res} 
 
     def curl_get(self, url):
         try:
