@@ -103,10 +103,23 @@ def check_bank_name(input: BankInfo):
                         elif result != False:
                             return APIResponse.json_format({'result': False, 'data': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                     except Exception as e:
-                        response = str(e)
-                        print(traceback.format_exc())
-                        print(sys.exc_info()[2])
-                        return APIResponse.json_format(response)
+                        try:
+                            for future in as_completed(futures, timeout=6):
+                                try:
+                                    result = future.result()
+                                    if result == True:
+                                        return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                                    elif result == False:
+                                        return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                                    else:
+                                        return APIResponse.json_format({'result': False, 'true_name': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                                except Exception as e:
+                                    response = str(e)
+                                    print(traceback.format_exc())
+                                    print(sys.exc_info()[2])
+                                    return APIResponse.json_format(response)
+                        except TimeoutError:
+                            return APIResponse.json_format({'result': False ,'message': 'timeout'})
             except TimeoutError:
             #     return APIResponse.json_format({'message': 'timeout'})
 
@@ -126,10 +139,23 @@ def check_bank_name(input: BankInfo):
                             else:
                                 return APIResponse.json_format({'result': False, 'true_name': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                         except Exception as e:
-                            response = str(e)
-                            print(traceback.format_exc())
-                            print(sys.exc_info()[2])
-                            return APIResponse.json_format(response)
+                            try:
+                                for future in as_completed(futures, timeout=6):
+                                    try:
+                                        result = future.result()
+                                        if result == True:
+                                            return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                                        elif result == False:
+                                            return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                                        else:
+                                            return APIResponse.json_format({'result': False, 'true_name': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                                    except Exception as e:
+                                        response = str(e)
+                                        print(traceback.format_exc())
+                                        print(sys.exc_info()[2])
+                                        return APIResponse.json_format(response)
+                            except TimeoutError:
+                                return APIResponse.json_format({'result': False ,'message': 'timeout'})
                 except TimeoutError:
                     return APIResponse.json_format({'result': False ,'message': 'timeout'})
 
