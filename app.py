@@ -77,7 +77,7 @@ class BankInfo(BaseModel):
 
 @app.post('/check_bank_name', tags=["check_bank_name"])
 def check_bank_name(input: BankInfo):
-    try:
+    # try:
         account_number = input.account_number
         bank_name = input.bank_name
         account_name = input.account_name
@@ -95,8 +95,8 @@ def check_bank_name(input: BankInfo):
                             return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                         elif isinstance(result, str):
                             return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                        # elif result != False:
-                        #     return APIResponse.json_format({'result': False, 'data': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                        elif result is None:
+                            raise ValueError("Result is None")
                     except Exception as e:
                         try:
                             remaining_banks = [bank for bank in banks if bank not in selected_banks]
@@ -108,6 +108,8 @@ def check_bank_name(input: BankInfo):
                                         return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                                     elif isinstance(result, str):
                                         return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                                    elif result is None:
+                                        raise ValueError("Result is None")
                                 except Exception as e:
                                     response = str(e)
                                     print(traceback.format_exc())
@@ -131,6 +133,8 @@ def check_bank_name(input: BankInfo):
                                 return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                             elif isinstance(result, str):
                                 return APIResponse.json_format({'result': False, 'true_name': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                            elif result is None:
+                                raise ValueError("Result is None")
                         except Exception as e:
                             try:
                                 selected_banks = random.sample(banks, 2)
@@ -142,6 +146,8 @@ def check_bank_name(input: BankInfo):
                                             return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                                         elif isinstance(result, str):
                                             return APIResponse.json_format({'result': False, 'true_name': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                                        elif result is None:
+                                            raise ValueError("Result is None")
                                     except Exception as e:
                                         response = str(e)
                                         print(traceback.format_exc())
@@ -153,11 +159,11 @@ def check_bank_name(input: BankInfo):
                     return APIResponse.json_format({'result': False ,'message': 'timeout'})
 
             return APIResponse.json_format({'result': False})
-    except Exception as e:
-        response = str(e)
-        print(traceback.format_exc())
-        print(sys.exc_info()[2])
-        return APIResponse.json_format(response)
+    # except Exception as e:
+    #     response = str(e)
+    #     print(traceback.format_exc())
+    #     print(sys.exc_info()[2])
+    #     return APIResponse.json_format(response)
 
 if __name__ == "__main__":
     uvicorn.run(app, host='0.0.0.0', port=3000)

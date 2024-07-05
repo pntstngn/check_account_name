@@ -377,7 +377,7 @@ class VTB:
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
         get_name_from_account = self.get_bank_name(ben_account_number, bank_name)
         print(get_name_from_account)
-        if 'error' in get_name_from_account and not get_name_from_account['error'] and 'beneficiaryName' in get_name_from_account and get_name_from_account['beneficiaryName']:
+        if get_name_from_account and 'error' in get_name_from_account and not get_name_from_account['error'] and 'beneficiaryName' in get_name_from_account and get_name_from_account['beneficiaryName']:
             input_name = self.convert_to_uppercase_no_accents(ben_account_name).lower().strip()
             output_name = get_name_from_account['beneficiaryName'].lower().strip()
             if output_name == input_name or output_name.replace(' ','') == input_name:

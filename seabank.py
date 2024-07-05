@@ -94,6 +94,7 @@ class SeaBank:
             self.id_token = result['data']['id_token']
             self.customer_id = result['data']['customerId']
             self.save_data()
+        result['success'] = False
         return result
     
     def check_bank_name_out(self,bank_code,account_number):
@@ -118,7 +119,7 @@ class SeaBank:
         if not self.is_login or time.time() - self.time_login > 300:
             login = self.do_login()
             if not login['success']:
-                return login
+                return None
         if 'bank_name' == 'SeABank':
             return self.check_bank_name_in(ben_account_number)
         else:
@@ -200,7 +201,7 @@ class SeaBank:
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
         get_name_from_account = self.get_bank_name(ben_account_number, bank_name)
         print(get_name_from_account)
-        if 'code' in get_name_from_account and get_name_from_account['code'] == "00" and 'data' in get_name_from_account and 'accountInfo' in get_name_from_account['data']:
+        if get_name_from_account and  'code' in get_name_from_account and get_name_from_account['code'] == "00" and 'data' in get_name_from_account and 'accountInfo' in get_name_from_account['data']:
             input_name = self.convert_to_uppercase_no_accents(ben_account_name).lower().strip()
             output_name = get_name_from_account['data']['accountInfo']['accountName'].lower().strip()
             if output_name == input_name or output_name.replace(' ','') == input_name:

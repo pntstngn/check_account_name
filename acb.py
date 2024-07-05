@@ -47,7 +47,6 @@ class ACB:
         count = 0
         while True:
             bankName = self.curl_get(url)
-            print(bankName)
             if 'message' not in bankName or ('message' in bankName and  bankName['message'] != 'Unauthorized'):
                 data = bankName
                 status = True
@@ -55,7 +54,7 @@ class ACB:
                 break
             else:
                 login = self.login()
-                print(login)
+                # print(login)
 
             count += 1
             if count > 3:
@@ -71,7 +70,7 @@ class ACB:
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
         get_name_from_account = self.get_bank_name(ben_account_number, bank_name)
         print(get_name_from_account)
-        if 'data' in get_name_from_account and 'data' in get_name_from_account['data']:
+        if get_name_from_account and 'data' in get_name_from_account and 'data' in get_name_from_account['data']:
             if get_name_from_account['data']['data'] and 'ownerName' in get_name_from_account['data']['data']:
                 input_name = self.convert_to_uppercase_no_accents(ben_account_name).lower().strip()
                 output_name = get_name_from_account['data']['data']['ownerName'].lower().strip()
