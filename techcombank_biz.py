@@ -1055,7 +1055,6 @@ class Techcombank:
         if get_name_from_account and 'beneficiaryName' in get_name_from_account and  get_name_from_account['beneficiaryName']:
             input_name = self.convert_to_uppercase_no_accents(ben_account_name).lower().strip()
             output_name = get_name_from_account['beneficiaryName'].lower().strip()
-            print(input_name,output_name)
             if output_name == input_name or output_name.replace(' ','') == input_name:
                 return True
             else:
