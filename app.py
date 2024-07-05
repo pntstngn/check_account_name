@@ -92,6 +92,7 @@ def check_bank_name(input: BankInfo):
                 for future in as_completed(futures, timeout=6):
                     try:
                         result = future.result()
+                        print('result',result)
                         if result == True:
                             return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                         elif isinstance(result, str):
@@ -109,8 +110,8 @@ def check_bank_name(input: BankInfo):
                                         return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                                     elif isinstance(result, str):
                                         return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                                    elif result == False or result is None:
-                                        raise ValueError("Result is None")
+                                    # elif result == False or result is None:
+                                    #     raise ValueError("Result is None")
                                 except Exception as e:
                                     response = str(e)
                                     print(traceback.format_exc())
@@ -147,8 +148,8 @@ def check_bank_name(input: BankInfo):
                                             return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
                                         elif isinstance(result, str):
                                             return APIResponse.json_format({'result': False, 'true_name': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                                        elif result == False or result is None:
-                                            raise ValueError("Result is None")
+                                        # elif result == False or result is None:
+                                        #     raise ValueError("Result is None")
                                     except Exception as e:
                                         response = str(e)
                                         print(traceback.format_exc())
