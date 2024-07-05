@@ -695,7 +695,7 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
         return no_accents.upper()
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
         get_name_from_account = self.get_bank_name(ben_account_number, bank_name)
-        print(get_name_from_account)
+        print('get_name_from_account',get_name_from_account)
         if get_name_from_account and 'result' in get_name_from_account and 'responseCode' in get_name_from_account['result'] and get_name_from_account['result']['responseCode'] == "00" and ('customerName' in get_name_from_account) and get_name_from_account['customerName']:
             input_name = self.convert_to_uppercase_no_accents(ben_account_name).lower().strip()
             output_name = get_name_from_account['customerName'].lower().strip()

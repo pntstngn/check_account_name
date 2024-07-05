@@ -283,7 +283,7 @@ class VietaBank:
         return no_accents.upper()
     def check_bank_name(self,ben_account_number, bank_name, ben_account_name):
         get_name_from_account = self.get_bank_name(ben_account_number, bank_name)
-        print(get_name_from_account)
+        print('get_name_from_account',get_name_from_account)
         if get_name_from_account and isinstance(get_name_from_account, str):
             input_name = self.convert_to_uppercase_no_accents(ben_account_name).lower().strip()
             output_name = get_name_from_account.lower().strip()
