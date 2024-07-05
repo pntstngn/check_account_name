@@ -65,6 +65,7 @@ vietabank = VietaBank(
 banks = [acb,mbbank,tcb,vietabank,seabank,vtb]
 
 def check_bank(bank, account_number, bank_name, account_name):
+    print(bank.__class__.__name__)
     return bank.check_bank_name(account_number, bank_name, account_name)
 
 
