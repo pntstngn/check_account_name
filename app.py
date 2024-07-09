@@ -14,6 +14,7 @@ from vietinbank import VTB
 from api_response import APIResponse
 import sys
 import traceback
+import threading
 
 # Read configuration from config file
 config = configparser.ConfigParser()
@@ -83,84 +84,193 @@ def check_bank_name(input: BankInfo):
         bank_name = input.bank_name
         account_name = input.account_name
 
+        completion_event = threading.Event()
+        result_container = []
+        def task_wrapper(bank, account_number, bank_name, account_name):
+            try:
+                result = check_bank(bank, account_number, bank_name, account_name)
+                if not completion_event.is_set() and result is True or isinstance(result, str):
+                    result_container.append((result, bank))
+                    completion_event.set()
+                elif not completion_event.is_set() and result is False:
+                    result_container.append((result, bank))
+            except Exception as e:
+                print(f"Error processing bank {bank}: {e}")
+
         with ThreadPoolExecutor(max_workers=2) as executor:
             selected_banks = random.sample(banks, 2)
-            futures = [executor.submit(check_bank, bank, account_number, bank_name, account_name) for bank in selected_banks]
+            futures = [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in selected_banks]
             start_time = time.time()
-
+            
             try:
-                for future in as_completed(futures, timeout=6):
+                completion_event.wait(timeout=6)
+                try:
+                    if result_container:
+                        for result, bank in result_container:
+                            print('result',result)
+                            if result is True:
+                                return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
+                            elif isinstance(result, str):
+                                return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': bank.__class__.__name__})
+                            elif result == False or result is None:
+                                    continue
+                except Exception as e:
                     try:
-                        result = future.result()
-                        print('result',result)
-                        if result == True:
-                            return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                        elif isinstance(result, str):
-                            return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                        elif result == False or result is None:
-                            raise ValueError("Result is None")
-                    except Exception as e:
+                        remaining_banks = [bank for bank in banks if bank not in selected_banks]
+                        futures = [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in remaining_banks]
+                        completion_event.wait(timeout=6)
                         try:
-                            remaining_banks = [bank for bank in banks if bank not in selected_banks]
-                            futures = [executor.submit(check_bank, bank, account_number, bank_name, account_name) for bank in remaining_banks]
-                            for future in as_completed(futures, timeout=6):
-                                try:
-                                    result = future.result()
-                                    if result == True:
-                                        return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                            if result_container:
+                                for result, bank in result_container:
+                                    print('result',result)
+                                    if result is True:
+                                        return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
                                     elif isinstance(result, str):
-                                        return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                                    # elif result == False or result is None:
-                                    #     raise ValueError("Result is None")
-                                except Exception as e:
-                                    response = str(e)
-                                    print(traceback.format_exc())
-                                    print(sys.exc_info()[2])
-                                    return APIResponse.json_format(response)
-                        except TimeoutError:
-                            return APIResponse.json_format({'result': False ,'message': 'timeout'})
+                                        return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': bank.__class__.__name__})
+                                    elif result == False or result is None:
+                                            continue
+                        except Exception as e:
+                            response = str(e)
+                            print(traceback.format_exc())
+                            print(sys.exc_info()[2])
+                            return APIResponse.json_format(response)
+                    except TimeoutError:
+                        return APIResponse.json_format({'result': False ,'message': 'timeout'})
             except TimeoutError:
             #     return APIResponse.json_format({'message': 'timeout'})
 
             # if time.time() - start_time >= 6:
                 # Retry with another set of banks
                 remaining_banks = [bank for bank in banks if bank not in selected_banks]
-                futures = [executor.submit(check_bank, bank, account_number, bank_name, account_name) for bank in remaining_banks]
+                futures = [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in remaining_banks]
 
                 try:
-                    for future in as_completed(futures, timeout=6):
+                    completion_event.wait(timeout=6)
+                    try:
+                        if result_container:
+                            for result, bank in result_container:
+                                print('result',result)
+                                if result is True:
+                                    return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
+                                elif isinstance(result, str):
+                                    return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': bank.__class__.__name__})
+                                elif result == False or result is None:
+                                        continue
+                    except Exception as e:
                         try:
-                            result = future.result()
-                            if result == True:
-                                return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                            elif isinstance(result, str):
-                                return APIResponse.json_format({'result': False, 'true_name': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                            elif result == False or result is None:
-                                raise ValueError("Result is None")
-                        except Exception as e:
+                            selected_banks = random.sample(banks, 2)
+                            futures = [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in selected_banks]
+                            completion_event.wait(timeout=6)
                             try:
-                                selected_banks = random.sample(banks, 2)
-                                futures = [executor.submit(check_bank, bank, account_number, bank_name, account_name) for bank in selected_banks]
-                                for future in as_completed(futures, timeout=6):
-                                    try:
-                                        result = future.result()
-                                        if result == True:
-                                            return APIResponse.json_format({'result': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
+                                if result_container:
+                                    for result, bank in result_container:
+                                        print('result',result)
+                                        if result is True:
+                                            return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
                                         elif isinstance(result, str):
-                                            return APIResponse.json_format({'result': False, 'true_name': result, 'bank': str(selected_banks[futures.index(future)].__class__.__name__)})
-                                        # elif result == False or result is None:
-                                        #     raise ValueError("Result is None")
-                                    except Exception as e:
-                                        response = str(e)
-                                        print(traceback.format_exc())
-                                        print(sys.exc_info()[2])
-                                        return APIResponse.json_format(response)
-                            except TimeoutError:
-                                return APIResponse.json_format({'result': False ,'message': 'timeout'})
+                                            return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': bank.__class__.__name__})
+                                        elif result == False or result is None:
+                                                continue
+                            except Exception as e:
+                                response = str(e)
+                                print(traceback.format_exc())
+                                print(sys.exc_info()[2])
+                                return APIResponse.json_format(response)
+                        except TimeoutError:
+                            return APIResponse.json_format({'result': False ,'message': 'timeout'})
                 except TimeoutError:
                     return APIResponse.json_format({'result': False ,'message': 'timeout'})
 
-            return APIResponse.json_format({'result': False})
+            # return APIResponse.json_format({'result': False})
+        all_false = all(result == False for result, bank in result_container)
+        if all_false:
+            print("Both tasks returned False, retrying...")
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                selected_banks = random.sample(banks, 2)
+                futures = [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in selected_banks]
+                start_time = time.time()
+                
+                try:
+                    completion_event.wait(timeout=6)
+                    try:
+                        if result_container:
+                            for result, bank in result_container:
+                                print('result',result)
+                                if result is True:
+                                    return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
+                                elif isinstance(result, str):
+                                    return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': bank.__class__.__name__})
+                                elif result == False or result is None:
+                                        continue
+                    except Exception as e:
+                        try:
+                            remaining_banks = [bank for bank in banks if bank not in selected_banks]
+                            futures = [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in remaining_banks]
+                            completion_event.wait(timeout=6)
+                            try:
+                                if result_container:
+                                    for result, bank in result_container:
+                                        print('result',result)
+                                        if result is True:
+                                            return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
+                                        elif isinstance(result, str):
+                                            return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': bank.__class__.__name__})
+                                        elif result == False or result is None:
+                                                continue
+                            except Exception as e:
+                                response = str(e)
+                                print(traceback.format_exc())
+                                print(sys.exc_info()[2])
+                                return APIResponse.json_format(response)
+                        except TimeoutError:
+                            return APIResponse.json_format({'result': False ,'message': 'timeout'})
+                except TimeoutError:
+                #     return APIResponse.json_format({'message': 'timeout'})
+
+                # if time.time() - start_time >= 6:
+                    # Retry with another set of banks
+                    remaining_banks = [bank for bank in banks if bank not in selected_banks]
+                    futures = [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in remaining_banks]
+
+                    try:
+                        completion_event.wait(timeout=6)
+                        try:
+                            if result_container:
+                                for result, bank in result_container:
+                                    print('result',result)
+                                    if result is True:
+                                        return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
+                                    elif isinstance(result, str):
+                                        return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': bank.__class__.__name__})
+                                    elif result == False or result is None:
+                                            continue
+                        except Exception as e:
+                            try:
+                                selected_banks = random.sample(banks, 2)
+                                futures = [executor.submit(task_wrapper, bank, account_number, bank_name, account_name) for bank in selected_banks]
+                                completion_event.wait(timeout=6)
+                                try:
+                                    if result_container:
+                                        for result, bank in result_container:
+                                            print('result',result)
+                                            if result is True:
+                                                return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
+                                            elif isinstance(result, str):
+                                                return APIResponse.json_format({'result': False, 'true_name': result.upper().replace(' ', ''), 'bank': bank.__class__.__name__})
+                                            elif result == False or result is None:
+                                                    continue
+                                except Exception as e:
+                                    response = str(e)
+                                    print(traceback.format_exc())
+                                    print(sys.exc_info()[2])
+                                    return APIResponse.json_format(response)
+                            except TimeoutError:
+                                return APIResponse.json_format({'result': False ,'message': 'timeout'})
+                    except TimeoutError:
+                        return APIResponse.json_format({'result': False ,'message': 'timeout'})
+                return APIResponse.json_format({'result': False})
+        else:
+            raise APIResponse.json_format({'result': False ,'message': 'error'})
     # except Exception as e:
     #     response = str(e)
     #     print(traceback.format_exc())

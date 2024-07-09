@@ -14,7 +14,7 @@
             "bankShortName": "Techcombank",
             "abbreviation": "TCB",
             "bin": "970407",
-            "napas": null,
+            "napas": "01310001",
             "citadOrBidv": null,
             "activeStatus": "NO",
             "orderSort": 1,
