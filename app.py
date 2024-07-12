@@ -63,7 +63,7 @@ vietabank = VietaBank(
     parse_proxy_list(config['VietaBank']['proxy_list'])
 )
 
-banks = [acb,mbbank,tcb,vietabank,seabank,vtb]
+banks = [acb,mbbank,tcb,vietabank,seabank]
 
 def check_bank(bank, account_number, bank_name, account_name):
     print(bank.__class__.__name__)
