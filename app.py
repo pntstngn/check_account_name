@@ -44,13 +44,12 @@ tcb = Techcombank(
     config['Techcombank']['account_number'], 
     parse_proxy_list(config['Techcombank']['proxy_list'])
 )
-vtb = VietaBank(
-    config['VietaBank']['username'], 
-    config['VietaBank']['password'], 
-    config['VietaBank']['account_number'], 
-    parse_proxy_list(config['VietaBank']['proxy_list'])
+vtb = VTB(
+    config['VTB']['username'], 
+    config['VTB']['password'], 
+    config['VTB']['account_number'], 
+    parse_proxy_list(config['VTB']['proxy_list'])
 )
-
 seabank = SeaBank(
     config['SeaBank']['username'], 
     config['SeaBank']['password'], 
