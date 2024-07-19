@@ -107,7 +107,7 @@ def check_bank_name(input: BankInfo):
                 try:
                     if result_container:
                         for result, bank in result_container:
-                            print('result',result)
+                            print(f'result_{bank.__class__.__name__}',result)
                             if result is True:
                                 return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
                             elif isinstance(result, str):
@@ -122,7 +122,7 @@ def check_bank_name(input: BankInfo):
                         try:
                             if result_container:
                                 for result, bank in result_container:
-                                    print('result',result)
+                                    print(f'result_{bank.__class__.__name__}',result)
                                     if result is True:
                                         return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
                                     elif isinstance(result, str):
@@ -149,7 +149,7 @@ def check_bank_name(input: BankInfo):
                     try:
                         if result_container:
                             for result, bank in result_container:
-                                print('result',result)
+                                print(f'result_{bank.__class__.__name__}',result)
                                 if result is True:
                                     return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
                                 elif isinstance(result, str):
@@ -164,7 +164,7 @@ def check_bank_name(input: BankInfo):
                             try:
                                 if result_container:
                                     for result, bank in result_container:
-                                        print('result',result)
+                                        print(f'result_{bank.__class__.__name__}',result)
                                         if result is True:
                                             return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
                                         elif isinstance(result, str):
@@ -195,7 +195,7 @@ def check_bank_name(input: BankInfo):
                     try:
                         if result_container:
                             for result, bank in result_container:
-                                print('result',result)
+                                print(f'result_{bank.__class__.__name__}',result)
                                 if result is True:
                                     return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
                                 elif isinstance(result, str):
@@ -210,7 +210,7 @@ def check_bank_name(input: BankInfo):
                             try:
                                 if result_container:
                                     for result, bank in result_container:
-                                        print('result',result)
+                                        print(f'result_{bank.__class__.__name__}',result)
                                         if result is True:
                                             return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
                                         elif isinstance(result, str):
@@ -237,7 +237,7 @@ def check_bank_name(input: BankInfo):
                         try:
                             if result_container:
                                 for result, bank in result_container:
-                                    print('result',result)
+                                    print(f'result_{bank.__class__.__name__}',result)
                                     if result is True:
                                         return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
                                     elif isinstance(result, str):
@@ -252,7 +252,7 @@ def check_bank_name(input: BankInfo):
                                 try:
                                     if result_container:
                                         for result, bank in result_container:
-                                            print('result',result)
+                                            print(f'result_{bank.__class__.__name__}',result)
                                             if result is True:
                                                 return APIResponse.json_format({'result': result, 'bank': bank.__class__.__name__})
                                             elif isinstance(result, str):
