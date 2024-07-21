@@ -1,1 +1,0 @@
-{"corpId": "KETOAN", "username": "Aa8888@", "password": "881234566666", "account_number": null, "sessionId": "", "mobileId": "", "clientId": "", "cif": "", "E": "", "res": "", "tranId": "", "browserToken": "", "browserId": "fb33ba2aaaf3424801057d522c1dab8b", "refNo": "20240630210601531496", "deviceId": "7opdg7800t9wka4gpjc77m8qeial20iy", "accountName": ""}
