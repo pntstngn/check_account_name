@@ -100,4 +100,4 @@ Cargo.lock
 
 test.py
 config.ini
-/data
+data/*.txt
