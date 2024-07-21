@@ -144,29 +144,29 @@ class ACB:
             if bank['shortName'].lower() == bank_name.lower():
                 return bank['bin']
         return None
-# def process_line(line):
-#     parts = line.split()
-#     account_name = ' '.join(parts[:-2])
-#     account_number = parts[-2]
-#     bank_name = parts[-1]
-#     check_bank_name =  acb.check_bank_name(account_number, bank_name, account_name), line
-#     return check_bank_name
+def process_line(line):
+    parts = line.split()
+    account_name = ' '.join(parts[:-2])
+    account_number = parts[-2]
+    bank_name = parts[-1]
+    check_bank_name =  acb.check_bank_name(account_number, bank_name, account_name), line
+    return check_bank_name
 
-# username = "0792818254"
-# password = "Oanh888999"
-# account_number="34097977"
-# proxy_list = []
-# acb = ACB(username, password, account_number,proxy_list)
+username = "0366834895"
+password = "Huong8899"
+account_number="28732497"
+proxy_list = []
+acb = ACB(username, password, account_number,proxy_list)
 
-# login = acb.login()
+login = acb.login()
 
-# print(login)
-# with open('test_cases.txt', 'r',encoding="utf8") as file:
-#     lines = file.readlines()
+print(login)
+with open('test_cases.txt', 'r',encoding="utf8") as file:
+    lines = file.readlines()
 
-# with concurrent.futures.ThreadPoolExecutor() as executor:
-#     futures = [executor.submit(process_line, line) for line in lines]
-#     for future in concurrent.futures.as_completed(futures):
-#         result, line = future.result()
-#         print(f'{line.strip()}, || {result}')
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    futures = [executor.submit(process_line, line) for line in lines]
+    for future in concurrent.futures.as_completed(futures):
+        result, line = future.result()
+        print(f'{line.strip()}, || {result}')
 
