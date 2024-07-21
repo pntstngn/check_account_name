@@ -218,7 +218,7 @@ class SeaBank:
 #     check_bank_name =  seabank.check_bank_name(account_number, bank_name, account_name), line
 #     return check_bank_name
 # username = "1724106900"
-# password = "Huy7799"
+# password = ""
 # account_number = "0375273004"
 # seabank = SeaBank(username,password,account_number)
 

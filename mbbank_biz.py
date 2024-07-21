@@ -715,7 +715,7 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
 
 # corp_id = "0110061284"
 # username = "KETOAN"
-# password = "Aa8888@"
+# password = ""
 # account_number = "881234566666"
 # mbbank = MBBANK(corp_id,username,password,account_number)
 

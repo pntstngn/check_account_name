@@ -1202,7 +1202,7 @@ def get_balance_TCB(device):
 #     return check_bank_name
 
 
-# user = Techcombank("prince01", "Aa666888@", "220708", "","")
+# user = Techcombank("prince01", "", "220708", "","")
 
 # #un comment login for first time, after that just call sync_balance_techcombank or sync_techcombank
 

@@ -303,7 +303,7 @@ class VietaBank:
     
     
 # username = "0332920123"
-# password = "Nhatlinh2024#!"
+# password = ""
 # account_number = "00365302"
 # vietabank = VietaBank(username,password,account_number)
 

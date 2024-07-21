@@ -395,7 +395,7 @@ class VTB:
 #     return check_bank_name
 
 # username = "0886438795"
-# password = "Dqxkv2205!"
+# password = ""
 # account_number = "109879087651"
 
 
