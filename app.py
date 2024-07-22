@@ -140,7 +140,7 @@ def check_bank_name(input: BankInfo):
 
         all_false = all(result == False for result, bank in result_container)
         if all_false:
-            print("Both tasks returned False, retrying...").
+            print("Both tasks returned False, retrying...")
             result_container = []
             with ThreadPoolExecutor(max_workers=1) as executor:
                 available_banks = [bank for bank in banks if is_bank_available(bank.__class__.__name__)]
