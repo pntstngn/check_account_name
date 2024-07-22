@@ -10,9 +10,11 @@ class ACB:
         self.clientId = 'iuSuHYVufIUuNIREV0FB9EoLn9kHsDbm'
         self.URL = {
             "LOGIN": "https://apiapp.acb.com.vn/mb/v2/auth/tokens",
+            "REFRESH": "https://apiapp.acb.com.vn/mb/v2/auth/refresh",
         }
         self.time_login = time.time()
         self.token = ""
+        self.refreshToken = ""
         self.password = password
         self.username = username
         self.account_number = account_number
@@ -35,9 +37,19 @@ class ACB:
         }
         return self.curl_post(self.URL["LOGIN"], data)
 
-    def get_bank_name(self, ben_account_number, bank_name):
-        if not self.is_login or time.time() - self.time_login > 300:
+    def refresh_token(self):
+        response =  self.curl_post(self.URL["REFRESH"])
+        if 'accessToken' in response and response['accessToken']:
+            self.token = response['accessToken']
+            if 'refreshToken' in response and response['refreshToken']:
+                self.refreshToken = response['refreshToken']
+        else:
             self.login()
+        return response
+
+    def get_bank_name(self, ben_account_number, bank_name):
+        if not self.is_login or time.time() - self.time_login > 118:
+            self.refresh_token()
         bank_code = self.mapping_bank_code(bank_name)
         status = False
         message = 'Error exception'
@@ -61,7 +73,7 @@ class ACB:
                 message = 'Connect false'
                 break
 
-        return {'status': status, 'message': message, 'data': data}
+        return {'success': status, 'message': message, 'data': data}
     def convert_to_uppercase_no_accents(self,text):
         # Remove accents
         no_accents = unidecode.unidecode(text)
@@ -92,6 +104,7 @@ class ACB:
         res = self.handleLogin()
         if 'accessToken' in res:
             self.token = res['accessToken']
+            self.refreshToken = res['refreshToken']
             data = json.dumps(res)
             if not user:
                 # Implement database insert here
@@ -100,14 +113,31 @@ class ACB:
                 # Implement database update here
                 pass
             self.is_login = True
-            self.time_login = time.time()
-            return {'success': 1, 'msg': 'Đăng nhập thành công'}
+            return {'code':200,'success': True, 'message': 'Đăng nhập thành công'}
+        elif 'identity' in res and 'passwordExpireAlert' in res['identity'] and res['identity']['passwordExpireAlert']:
+            
+            return {'code':445,'success': False, 'message': 'passwordExpireAlert!'} 
+        
+        elif 'vn.com.acb.platform.authn.exception.UsernameOrPasswordIncorrectException' in res['error']:
+            
+            return {'code':444,'success': False, 'message': res['error']} 
+        
+        elif 'vn.com.acb.platform.authn.exception.UserLockedByAdminException' in res['error']:
+            
+            return {'code':449,'success': False, 'message': 'vn.com.acb.platform.authn.exception.UserLockedByAdminException'} 
+        
+        elif 'vn.com.acb.platform.authn.exception.UserLockedPasswordAttemptException' in res['error']:
+            
+            return {'code':443,'success': False, 'message': 'vn.com.acb.platform.authn.exception.UserLockedPasswordAttemptException'} 
         else:
-            return {'success': 0, 'msg': res['error'] if 'error' in res else None,'data': res} 
+            return {'code':400,'success': False, 'message': res['error']} 
 
     def curl_get(self, url):
         try:
-            headers = self.header_null()
+            if url == "https://apiapp.acb.com.vn/mb/v2/auth/refresh":
+                headers = self.header_null(refreshToken=True)
+            else:
+                headers = self.header_null()
             response = requests.get(url, headers=headers, timeout=60,proxies=self.proxies)
             result = response.json()
             return result
@@ -115,12 +145,15 @@ class ACB:
             return False
 
     def curl_post(self, url, data=None):
-        headers = self.header_null()
+        if url == "https://apiapp.acb.com.vn/mb/v2/auth/refresh":
+            headers = self.header_null(refreshToken=True)
+        else:
+            headers = self.header_null()
         response = requests.post(url, headers=headers, json=data, timeout=60,proxies=self.proxies)
         result = response.json()
         return result
 
-    def header_null(self):
+    def header_null(self,refreshToken = None):
             header = {
                 'Accept': 'application/json',
                 'Accept-Encoding': 'gzip, deflate, br',
@@ -135,6 +168,9 @@ class ACB:
             }
             if self.token:
                 header['Authorization'] = 'Bearer ' + self.token
+            if refreshToken:
+                header['Authorization'] = 'Bearer ' + self.refreshToken
+                
 
             return header
     def mapping_bank_code(self,bank_name):
@@ -144,29 +180,29 @@ class ACB:
             if bank['shortName'].lower() == bank_name.lower():
                 return bank['bin']
         return None
-def process_line(line):
-    parts = line.split()
-    account_name = ' '.join(parts[:-2])
-    account_number = parts[-2]
-    bank_name = parts[-1]
-    check_bank_name =  acb.check_bank_name(account_number, bank_name, account_name), line
-    return check_bank_name
+# def process_line(line):
+#     parts = line.split()
+#     account_name = ' '.join(parts[:-2])
+#     account_number = parts[-2]
+#     bank_name = parts[-1]
+#     check_bank_name =  acb.check_bank_name(account_number, bank_name, account_name), line
+#     return check_bank_name
 
-username = "0366834895"
-password = "Huong8899"
-account_number="28732497"
-proxy_list = []
-acb = ACB(username, password, account_number,proxy_list)
+# username = "0366834895"
+# password = ""
+# account_number="28732497"
+# proxy_list = []
+# acb = ACB(username, password, account_number,proxy_list)
 
-login = acb.login()
+# login = acb.login()
 
-print(login)
-with open('test_cases.txt', 'r',encoding="utf8") as file:
-    lines = file.readlines()
+# print(login)
+# with open('test_cases.txt', 'r',encoding="utf8") as file:
+#     lines = file.readlines()
 
-with concurrent.futures.ThreadPoolExecutor() as executor:
-    futures = [executor.submit(process_line, line) for line in lines]
-    for future in concurrent.futures.as_completed(futures):
-        result, line = future.result()
-        print(f'{line.strip()}, || {result}')
+# with concurrent.futures.ThreadPoolExecutor() as executor:
+#     futures = [executor.submit(process_line, line) for line in lines]
+#     for future in concurrent.futures.as_completed(futures):
+#         result, line = future.result()
+#         print(f'{line.strip()}, || {result}')
 

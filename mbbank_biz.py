@@ -18,7 +18,7 @@ import unidecode
 
 
 class MBBANK:
-    def __init__(self,corpId, username, password, account_number,proxy_list=None):
+    def __init__(self,corp_id, username, password, account_number,proxy_list=None):
         self.proxy_list = proxy_list
         if self.proxy_list:
             self.proxy_info = self.proxy_list.pop(0)
@@ -93,7 +93,7 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
             self.username = username
             self.password = password
             self.account_number = account_number
-            self.corpId = corpId
+            self.corp_id = corp_id
             self.deviceId = ""
             self.refNo = ""
             self.sessionId = ""
@@ -115,12 +115,12 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
             self.password = password
             self.account_number = account_number
             self.is_login = False
-            self.corpId = corpId
+            self.corp_id = corp_id
         self.init_guid()
     def save_data(self):
         data = {
             
-            'corpId': self.corpId,
+            'corp_id': self.corp_id,
             'username': self.username,
             'password': self.password,
             'account_number': self.account_number,
@@ -144,7 +144,7 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
     def parse_data(self):
         with open(self.file, 'r') as f:
             data = json.load(f)
-        self.corpId = data.get('corpId', '')    
+        self.corp_id = data.get('corp_id', '')    
         self.username = data.get('username', '')
         self.password = data.get('password', '')
         self.account_number = data.get('account_number', '')
@@ -434,7 +434,7 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
             return solveCaptcha
         param = {
             
-            "corpId": self.corpId,
+            "corpId": self.corp_id,
             "deviceId": self.deviceId,
             "encryptedCaptcha": self.encryptedCaptcha,
             "password": self.password,
@@ -452,11 +452,12 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
             }
             self.save_data()
             self.is_login = True
-            self.time_login = time.time()
             return {
                 'code': 200,
                 'success': True,
-                'message': "success"
+                'message': "success",
+                'session': session,
+                'data': result if result else ""
             }
         elif 'result' in result and 'message' in result['result']:
             return {
@@ -669,7 +670,7 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
                     
         return None
     def get_bank_name(self, ben_account_number, bank_name):
-        if not self.is_login or time.time() - self.time_login > 300:
+        if not self.is_login or time.time() - self.time_login > 900:
             login = self.do_login()
             if not login['success']:
                 return login
@@ -715,10 +716,11 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
 
 # corp_id = "0110061284"
 # username = "KETOAN"
-# password = ""
+# password = "Aa8888@"
 # account_number = "881234566666"
 # mbbank = MBBANK(corp_id,username,password,account_number)
 
+# st = time.time()
 # login = mbbank.do_login()
 # print('login',login)
 
@@ -731,3 +733,9 @@ Yr4ZPChxNrik1CFLxfkesoReXN8kU/8918D0GLNeVt/C\n\
 #     for future in concurrent.futures.as_completed(futures):
 #         result, line = future.result()
 #         print(f'{line.strip()}, || {result}')
+
+# while True: 
+#     print(time.time()-st)
+#     res = mbbank.check_bank_name("0621000456871", "Vietcombank", "TRAN DUY QUANG")
+#     print(res)
+#     time.sleep(10)

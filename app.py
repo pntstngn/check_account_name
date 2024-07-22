@@ -24,46 +24,25 @@ def parse_proxy_list(proxy_list_str):
     if proxy_list_str.lower() in ['none', 'empty']:
         return None
     return proxy_list_str.split(',')
-
-acb = ACB(
-    config['ACB']['username'], 
-    config['ACB']['password'], 
-    config['ACB']['account_number'], 
-    parse_proxy_list(config['ACB']['proxy_list'])
-)
-mbbank = MBBANK(
-    config['MBBANK']['corp_id'], 
-    config['MBBANK']['username'], 
-    config['MBBANK']['password'], 
-    config['MBBANK']['account_number'], 
-    parse_proxy_list(config['MBBANK']['proxy_list'])
-)
-tcb = Techcombank(
-    config['Techcombank']['username'], 
-    config['Techcombank']['password'], 
-    config['Techcombank']['account_number'], 
-    parse_proxy_list(config['Techcombank']['proxy_list'])
-)
-vtb = VTB(
-    config['VTB']['username'], 
-    config['VTB']['password'], 
-    config['VTB']['account_number'], 
-    parse_proxy_list(config['VTB']['proxy_list'])
-)
-seabank = SeaBank(
-    config['SeaBank']['username'], 
-    config['SeaBank']['password'], 
-    config['SeaBank']['account_number'], 
-    parse_proxy_list(config['SeaBank']['proxy_list'])
-)
-vietabank = VietaBank(
-    config['VietaBank']['username'], 
-    config['VietaBank']['password'], 
-    config['VietaBank']['account_number'], 
-    parse_proxy_list(config['VietaBank']['proxy_list'])
-)
-
-banks = [acb,mbbank,tcb,vietabank,seabank,vtb]
+BANK_CLASSES = {
+    'ACB': ACB,
+    'MBBANK': MBBANK,
+    'Techcombank': Techcombank,
+    'VTB': VTB,
+    'SeaBank': SeaBank,
+    'VietaBank': VietaBank,
+}
+banks = []
+for section in config.sections():
+    for bank_name in BANK_CLASSES.keys():
+        if section.startswith(f"{bank_name}_"):
+            bank_class = BANK_CLASSES[bank_name]
+            params = {k: v for k, v in config[section].items()}
+            if 'proxy_list' in params:
+                params['proxy_list'] = parse_proxy_list(params['proxy_list'])
+            print(bank_name,params)
+            bank_instance = bank_class(**params)
+            banks.append(bank_instance)
 
 def check_bank(bank, account_number, bank_name, account_name):
     print(bank.__class__.__name__)
