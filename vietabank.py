@@ -293,27 +293,27 @@ class VietaBank:
                 return output_name
         return False
 
-# def process_line(line):
-#     parts = line.split()
-#     account_name = ' '.join(parts[:-2])
-#     account_number = parts[-2]
-#     bank_name = parts[-1]
-#     check_bank_name =  vietabank.check_bank_name(account_number, bank_name, account_name), line
-#     return check_bank_name
+def process_line(line):
+    parts = line.split()
+    account_name = ' '.join(parts[:-2])
+    account_number = parts[-2]
+    bank_name = parts[-1]
+    check_bank_name =  vietabank.check_bank_name(account_number, bank_name, account_name), line
+    return check_bank_name
     
     
-# username = "0332920123"
-# password = ""
-# account_number = "00365302"
-# vietabank = VietaBank(username,password,account_number)
+username = "0332570526"
+password = "Hson6969#"
+account_number = "00365302"
+vietabank = VietaBank(username,password,account_number)
 
-# login = vietabank.login()
-# print(login)
-# with open('test_cases.txt', 'r',encoding="utf8") as file:
-#     lines = file.readlines()
+login = vietabank.login()
+print(login)
+with open('test_cases.txt', 'r',encoding="utf8") as file:
+    lines = file.readlines()
 
-# with concurrent.futures.ThreadPoolExecutor() as executor:
-#     futures = [executor.submit(process_line, line) for line in lines]
-#     for future in concurrent.futures.as_completed(futures):
-#         result, line = future.result()
-#         print(f'{line.strip()}, || {result}')
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    futures = [executor.submit(process_line, line) for line in lines]
+    for future in concurrent.futures.as_completed(futures):
+        result, line = future.result()
+        print(f'{line.strip()}, || {result}')
